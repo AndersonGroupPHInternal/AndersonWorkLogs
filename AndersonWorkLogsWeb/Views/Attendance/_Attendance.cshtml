@@ -1,5 +1,6 @@
 ﻿
 <input type="hidden" name="AttendanceId" value="@Model.AttendanceId" />
+<input type="hidden" name="ManagerEmployeeId" value="@Model.ManagerEmployeeId" />
 @{
     Html.RenderPartial("_AuditColumns");
 }
@@ -12,7 +13,7 @@
     <input type="datetime-local" class="form-control" id="TimeOut" name="TimeOut" placeholder="TimeOut" value="@Model.TimeOutString">
 </div>
 
-@if (Model.CreatedBy == Model.UserId)
+@if (Model.CreatedBy == Model.UserId && !Model.Approved)
 {
     <div class="form-group">
         <input type="submit" class="btn btn-primary" value="Submit" />
@@ -25,7 +26,7 @@
             <div class="col-sm-offset-1 col-sm-7">
                 <input class="form-control" ng-readonly="model.IsExisting(workLog)" name="WorkLogs[{{$index}}].WorkDone" placeholder="WorkDone" ng-value="workLog.WorkDone">
             </div>
-            @if (Model.CreatedBy == Model.UserId)
+            @if (Model.CreatedBy == Model.UserId && !Model.Approved)
             {
                 <div class="col-sm-4">
                     <button type="button" ng-click="model.Delete(workLog)" class="btn btn-primary">
@@ -41,7 +42,7 @@
         <input type="hidden" name="DeletedWorkLogs[{{$index}}].WorkLogId" ng-value="deletedWorkLog.WorkLogId" />
         <input type="hidden" name="DeletedWorkLogs[{{$index}}].WorkDone" ng-value="deletedWorkLog.WorkDone" />
     </div>
-    @if (Model.CreatedBy == Model.UserId)
+    @if (Model.CreatedBy == Model.UserId && !Model.Approved)
     {
         <input type="button" ng-click="model.Create()" class="btn btn-primary" value="Add Work Done" />
     }

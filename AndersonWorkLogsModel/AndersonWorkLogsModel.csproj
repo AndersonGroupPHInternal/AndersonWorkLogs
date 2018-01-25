@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AndersonWorklogsModel">
-      <HintPath>..\..\DLL\Debug\Accounts\AndersonWorklogsModel.dll</HintPath>
-    </Reference>
     <Reference Include="Antlr3.Runtime">
       <HintPath>..\..\DLL\Release\Accounts\Antlr3.Runtime.dll</HintPath>
     </Reference>
@@ -40,11 +37,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\DLL\Release\Base\BaseExtension.dll</HintPath>
     </Reference>
-	 <Reference Include="BaseModel">
+    <Reference Include="BaseModel">
       <HintPath>..\..\DLL\Release\Base\BaseModel.dll</HintPath>
     </Reference>
-    <Reference Include="BaseModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="AndersonWorkLogsModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -55,9 +50,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttendanceSummary.cs" />
     <Compile Include="Attendance.cs" />
     <Compile Include="WorkLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

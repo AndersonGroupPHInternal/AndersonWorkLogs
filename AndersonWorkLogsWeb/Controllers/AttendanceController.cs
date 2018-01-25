@@ -1,7 +1,10 @@
 ﻿using AndersonWorkLogsFunction;
 using AndersonWorkLogsModel;
 using System;
+using System.Collections.Generic;
 using System.Web.Mvc;
+using System.Linq;
+using System.Diagnostics;
 
 namespace AndersonWorkLogsWeb.Controllers
 {
@@ -30,7 +33,7 @@ namespace AndersonWorkLogsWeb.Controllers
         [HttpPost]
         public ActionResult Create(Attendance attendance)
         {
-            var createdAttendance = _iFAttendance.Create(UserId, attendance);
+            var createdAttendance = _iFAttendance.Create(UserId, ManagerEmployeeId, attendance);
             _iFWorkLog.Create(createdAttendance.AttendanceId, UserId, attendance.WorkLogs);
             return RedirectToAction("Index");
         }
@@ -46,7 +49,13 @@ namespace AndersonWorkLogsWeb.Controllers
         [HttpPost]
         public JsonResult Read()
         {
-            return Json(_iFAttendance.Read());
+            return Json(_iFAttendance.Read(UserId, EmployeeId));
+        }
+
+        [HttpPost]
+        public JsonResult ReadSummary()
+        {
+            return Json(_iFAttendance.Readsummary());
         }
         #endregion
 
@@ -54,7 +63,7 @@ namespace AndersonWorkLogsWeb.Controllers
         [HttpGet]
         public ActionResult Update(int id)
         {
-            var attendance = _iFAttendance.Read(id);
+            var attendance = _iFAttendance.ReadId(id);
             attendance.UserId = UserId;
             return View(attendance);
         }
@@ -62,9 +71,9 @@ namespace AndersonWorkLogsWeb.Controllers
         [HttpPost]
         public ActionResult Update(Attendance attendance)
         {
-            var createdAttendance = _iFAttendance.Update(UserId, attendance);
-            if (attendance.CreatedBy == UserId)
+            if (attendance.CreatedBy == UserId && !attendance.Approved)
             {
+                var createdAttendance = _iFAttendance.Update(UserId, attendance);
                 _iFWorkLog.Create(createdAttendance.AttendanceId, UserId, attendance.WorkLogs);
                 _iFWorkLog.Delete(attendance.DeletedWorkLogs);
             }
@@ -83,6 +92,14 @@ namespace AndersonWorkLogsWeb.Controllers
             {
                 return Json(true);
             }
+        }
+
+        [HttpPost]
+        public JsonResult ApproveSelected(Attendance attendance)
+        {
+            if (attendance.SelectedIds != null)
+                _iFAttendance.MultipleApprove(UserId, attendance.SelectedIds);
+            return Json(true);
         }
         #endregion
 

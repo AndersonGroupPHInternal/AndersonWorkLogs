@@ -1,0 +1,31 @@
+﻿
+@{
+    ViewBag.Title = "Summary";
+}
+
+<h2>Summary</h2><br />
+
+<div ng-controller="AttendanceController as model" ng-init="model.InitialiseSummary()">
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-hover table-sm table-bordered ">
+                <thead>
+                    <tr class="thead-inverse">
+                        <th>UserId</th>
+                        <th>FullName</th>
+                        <th>No. of Attendance</th>
+                        <th>TotalHours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="clickableRow" ng-repeat="attendance in model.Attendances" ng-click="$event.originalEvent.dropdown">
+                        <td><span ng-bind="attendance.CreatedBy" /></td>
+                        <td><span ng-bind="attendance.Employee.FullName" /></td>
+                        <td><span ng-bind="attendance.NumberOfAttendances" /></td>
+                        <td><span ng-bind="attendance.Hours" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

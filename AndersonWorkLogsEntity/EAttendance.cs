@@ -15,8 +15,7 @@ namespace AndersonWorkLogsEntity
 
         [NotMapped]
         public double Hours => (TimeOut - TimeIn).TotalHours;
-
-
+        
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AttendanceId { get; set; }
