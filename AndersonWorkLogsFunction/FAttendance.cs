@@ -4,6 +4,7 @@ using AndersonWorkLogsModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace AndersonWorkLogsFunction
 {
@@ -17,11 +18,12 @@ namespace AndersonWorkLogsFunction
         }
 
         #region CREATE
-        public Attendance Create(int createdBy, int managerEmployeeId, Attendance attendance)
+        public Attendance Create(int createdBy, int employeeId, int managerEmployeeId, Attendance attendance)
         {
             EAttendance eAttendance = EAttendance(attendance);
             eAttendance.CreatedDate = DateTime.Now;
             eAttendance.CreatedBy = createdBy;
+            eAttendance.EmployeeId = employeeId;
             eAttendance.ManagerEmployeeId = managerEmployeeId;
             eAttendance = _iDAttendance.Create(eAttendance);
             return (Attendance(eAttendance));
@@ -36,10 +38,31 @@ namespace AndersonWorkLogsFunction
             return Attendance(eAttendance);
         }
 
-        public List<Attendance> Read()
+        public List<Attendance> Read(AttendanceFilter attendanceFilter)
         {
-            List<EAttendance> eAttendances = _iDAttendance.List<EAttendance>(a => true);
-            
+            if (attendanceFilter.EmployeeIds == null)
+                attendanceFilter.EmployeeIds = new List<int>();
+            if (attendanceFilter.EmployeeIdsOfSelectedDepartments == null)
+                attendanceFilter.EmployeeIdsOfSelectedDepartments = new List<int>();
+            if (attendanceFilter.ManagerEmployeeIds == null)
+                attendanceFilter.ManagerEmployeeIds = new List<int>();
+
+            Expression<Func<EAttendance, bool>> predicate =
+                a => (((a.TimeIn >= attendanceFilter.TimeInFrom && a.TimeIn <= attendanceFilter.TimeInTo)
+                || (a.TimeOut >= attendanceFilter.TimeInFrom && a.TimeOut <= attendanceFilter.TimeInTo)) 
+                || (!attendanceFilter.TimeInFrom.HasValue || !attendanceFilter.TimeInTo.HasValue))
+                && (!attendanceFilter.EmployeeIds.Any() || attendanceFilter.EmployeeIds.Contains(a.EmployeeId))
+                && (!attendanceFilter.EmployeeIdsOfSelectedDepartments.Any() || attendanceFilter.EmployeeIdsOfSelectedDepartments.Contains(a.EmployeeId))
+                && (!attendanceFilter.ManagerEmployeeIds.Any() || attendanceFilter.ManagerEmployeeIds.Contains(a.ManagerEmployeeId));
+
+            //(a.TimeIn >= attendanceFilter.TimeInFrom) && (a.TimeOut <= attendanceFilter.TimeInTo) ||
+
+            //Expression<Func<EAttendance, bool>> predicate =
+            //    a => (attendanceFilter.TimeInFrom.HasValue || a.TimeIn >= attendanceFilter.TimeInFrom)
+            //    && (attendanceFilter.TimeInTo.HasValue || a.TimeOut >= attendanceFilter.TimeInTo)
+            //    && (attendanceFilter.ManagerEmployeeIds.Any() || attendanceFilter.ManagerEmployeeIds.Contains(a.ManagerEmployeeId));
+            //looks like we need to add EmployeeId
+            List <EAttendance> eAttendances = _iDAttendance.List(predicate);
             return Attendances(eAttendances);
         }
 
@@ -50,7 +73,7 @@ namespace AndersonWorkLogsFunction
             return Attendances(eAttendances);
         }
 
-        public List<AttendanceSummary> Readsummary()
+        public List<AttendanceSummary> ReadSummary()
         {
             List<EAttendance> eAttendances = _iDAttendance.List<EAttendance>(a => true);
             List<AttendanceSummary> attendanceSummaries = new List<AttendanceSummary>();
@@ -126,6 +149,7 @@ namespace AndersonWorkLogsFunction
 
                 AttendanceId = a.AttendanceId,
                 ApprovedBy = a.ApprovedBy,
+                EmployeeId = a.EmployeeId,
                 ManagerEmployeeId = a.ManagerEmployeeId,
                 CreatedBy = a.CreatedBy,
                 UpdatedBy = a.UpdatedBy
@@ -144,6 +168,7 @@ namespace AndersonWorkLogsFunction
 
                 AttendanceId = attendance.AttendanceId,
                 ApprovedBy = attendance.ApprovedBy,
+                EmployeeId = attendance.EmployeeId,
                 ManagerEmployeeId = attendance.ManagerEmployeeId,
                 CreatedBy = attendance.CreatedBy,
                 UpdatedBy = attendance.UpdatedBy
@@ -161,6 +186,7 @@ namespace AndersonWorkLogsFunction
 
                 AttendanceId = eAttendance.AttendanceId,
                 ApprovedBy = eAttendance.ApprovedBy,
+                EmployeeId = eAttendance.EmployeeId,
                 ManagerEmployeeId = eAttendance.ManagerEmployeeId,
                 CreatedBy = eAttendance.CreatedBy,
                 UpdatedBy = eAttendance.UpdatedBy

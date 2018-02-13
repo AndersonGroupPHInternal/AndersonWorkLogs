@@ -6,14 +6,14 @@ namespace AndersonWorkLogsFunction
     public interface IFAttendance
     {
         #region CREATE
-        Attendance Create(int createdBy, int managerEmployeeId, Attendance attendance);
+        Attendance Create(int createdBy, int employeeId, int managerEmployeeId, Attendance attendance);
         #endregion
 
         #region READ
         Attendance ReadId(int attendanceId);
-        List<Attendance> Read();
+        List<Attendance> Read(AttendanceFilter attendanceFilter);
         List<Attendance> Read(int userId, int employeeId);
-        List<AttendanceSummary> Readsummary();
+        List<AttendanceSummary> ReadSummary();
         #endregion
 
         #region UPDATE

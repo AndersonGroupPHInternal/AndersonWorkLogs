@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttendanceFilter.cs" />
     <Compile Include="AttendanceSummary.cs" />
     <Compile Include="Attendance.cs" />
     <Compile Include="WorkLog.cs" />

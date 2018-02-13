@@ -4,15 +4,15 @@
 @{
     ViewBag.Title = "Update";
 }
-
-<h2>Update</h2>
-
-<div class="row">
-    <div class="col-sm-12">
-        <form action="~/Attendance/Update" method="post">
-            @{
-                Html.RenderPartial("_Attendance", Model);
-            }
-        </form>
+@*<body style="background:linear-gradient(Powderblue, white); background-attachment:fixed;">*@
+    <h2>Update</h2>
+    <div class="row">
+        <div class="col-sm-12">
+            <form action="~/Attendance/Update" method="post">
+                @{
+                    Html.RenderPartial("_Attendance", Model);
+                }
+            </form>
+        </div>
     </div>
-</div>
+@*</body>*@

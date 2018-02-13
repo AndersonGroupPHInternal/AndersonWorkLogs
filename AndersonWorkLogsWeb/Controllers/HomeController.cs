@@ -15,7 +15,7 @@ namespace AndersonWorkLogsWeb.Controllers
             return View();
         }
 
-    public ActionResult About()
+        public ActionResult About()
         {
             return View();
         }

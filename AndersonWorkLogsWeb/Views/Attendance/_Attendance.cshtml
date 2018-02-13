@@ -1,15 +1,16 @@
 ﻿
 <input type="hidden" name="AttendanceId" value="@Model.AttendanceId" />
+<input type="hidden" name="EmployeeId" value="@Model.EmployeeId" />
 <input type="hidden" name="ManagerEmployeeId" value="@Model.ManagerEmployeeId" />
 @{
     Html.RenderPartial("_AuditColumns");
 }
 <div class="form-group">
-    <label for="TimeIn">TimeIn</label>
+    <label for="TimeIn">Time In</label>
     <input type="datetime-local" class="form-control" id="TimeIn" name="TimeIn" placeholder="TimeIn" value="@Model.TimeInString">
 </div>
 <div class="form-group">
-    <label for="TimeOut">TimeOut</label>
+    <label for="TimeOut">Time Out</label>
     <input type="datetime-local" class="form-control" id="TimeOut" name="TimeOut" placeholder="TimeOut" value="@Model.TimeOutString">
 </div>
 

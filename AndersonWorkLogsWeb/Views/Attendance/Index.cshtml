@@ -1,16 +1,72 @@
-﻿
+﻿@using AndersonWorkLogsModel;
+
 @{
     ViewBag.Title = "Index";
 }
-
 <div ng-controller="AttendanceController as model" ng-init="model.Initialise()">
-    <div class="row">
-        <div class="col-sm-4">
+    <div class="row" style="display:flex">
+        <div class="col-sm-5 cart pull-right" style="position:absolute; z-index:5; right:0">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title" data-toggle="collapse" data-target="#Filter">Filters</h3>
+                </div>
+                <div class="panel-body collapse" id="Filter">
+                    <div>
+                        <div>
+                            <label>Time in From</label>
+                            <input type="date" class="form-control" ng-model="model.AttendanceFilter.TimeInFrom">
+                        </div>
+                        <div>
+                            <label>Time in To</label>
+                            <input type="date" class="form-control" ng-model="model.AttendanceFilter.TimeInTo">
+                        </div>
+                        <div ng-controller="EmployeeController as employeeModel" ng-init="employeeModel.Initialise()">
+                            <label>Department list</label>
+                            <ui-select multiple ng-model="model.AttendanceFilter.Departments">
+                                <ui-select-match placeholder="Select Department...">
+                                    <span ng-bind="$select.selected.Name"></span>
+                                    {{$item.Name}}
+                                </ui-select-match>
+                                <ui-select-choices repeat="department in (model.Departments | filter: $select.search) track by $index">
+                                    <span ng-bind="department.Name"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                            <label>Employee</label>
+                            <ui-select multiple ng-model="model.AttendanceFilter.Employees">
+                                <ui-select-match placeholder="Select Employee..." style="width: 100%">
+                                    <span ng-bind="$select.selected.FullName"></span>
+                                    {{$item.FullName}}
+                                </ui-select-match>
+                                <ui-select-choices repeat="employee in (employeeModel.Employees | filter: $select.search) track by $index">
+                                    <span ng-bind="employee.FullName"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                            <label>Employees Under</label>
+                            <ui-select multiple ng-model="model.AttendanceFilter.ManagerEmployees">
+                                <ui-select-match placeholder="Select Employee..." style="width: 100%">
+                                    <span ng-bind="$select.selected.FullName"></span>
+                                    {{$item.FullName}}
+                                </ui-select-match>
+                                <ui-select-choices repeat="employee in (employeeModel.Employees | filter: $select.search) track by $index">
+                                    <span ng-bind="employee.FullName"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <br />
+                        <a ng-click="model.FilterList()" class="btn btn-default">Search</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12" style="margin-top:auto">
             <a href="../Attendance/Create" class="btn btn-default">Create</a>
             <a ng-click="model.ConfirmApproval()" class="btn btn-default">Approve</a>
+
         </div>
     </div>
+
     <br />
+
     <div class="row">
         <div class="col-sm-12">
             <table class="table table-hover table-sm table-bordered ">
@@ -29,9 +85,9 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr class="clickableRow" ng-repeat="attendance in model.Attendances" ng-click="$event.originalEvent.dropdown">
-                        <td><input type="checkbox" ng-model="attendance.Selected" ng-change="model.CheckboxToggled()" /></td>
+                <tbody ng-repeat="attendance in model.Attendances track by $index">
+                    <tr class="clickableRow" data-toggle="collapse" data-target="#{{$index}}">
+                        <td><input type="checkbox" ng-model="attendance.Selected" ng-change="model.CheckboxToggled()" ng-click="$event.stopPropagation()" /></td>
                         <td><span ng-bind="attendance.AttendanceId" /></td>
                         <td><span ng-bind="attendance.User.Username" /></td>
                         <td><span ng-bind="attendance.TimeIn" /></td>
@@ -39,7 +95,7 @@
                         <td><span ng-bind="attendance.Hours" /></td>
                         <td><span ng-bind="attendance.Employee.FullName" /></td>
                         <td><span ng-bind="attendance.Manager.FullName" /></td>
-                       
+
                         <td><span ng-bind="attendance.ApprovedDate" /></td>
                         <td><span ng-bind="attendance.Approved" /></td>
                         <td ng-click="$event.originalEvent.dropdown = true">
@@ -52,6 +108,21 @@
                                     <li><a href="#" ng-click="model.GoToUpdatePage(attendance.AttendanceId)">Edit</a></li>
                                     <li><a href="#" ng-click="model.Delete(attendance.AttendanceId)">Delete</a></li>
                                 </ul>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="collapse" id="{{$index}}">
+                        <td colspan="11">
+                            <h3 class="col-sm-offset-1 col-sm-7">Work Done</h3>
+                            <div @*ng-controller="WorkLogController as model" ng-init="model.Initialise(attendance.AttendanceId)"*@>
+                                <div class="form-group" ng-repeat="workLog in attendance.WorkLogs">
+                                    <div class="row">
+                                        <div class="col-sm-offset-1 col-sm-7">
+                                            <input class="form-control" ng-readonly="true" placeholder="WorkDone" ng-value="workLog.WorkDone">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </td>
                     </tr>

@@ -9,11 +9,21 @@
 
     function AttendanceService($http) {
         return {
+            FilteredRead: FilteredRead,
             Read: Read,
             ReadSummary: ReadSummary,
             Approve: Approve,
             ApproveSelected: ApproveSelected,
             Delete: Delete
+        }
+
+        function FilteredRead(attendanceFilter) {
+            return $http({
+                method: 'POST',
+                url: '/Attendance/FiltRead',
+                data: $.param(attendanceFilter),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
         }
 
         function Read() {
