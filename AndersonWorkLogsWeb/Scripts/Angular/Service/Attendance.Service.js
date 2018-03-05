@@ -12,9 +12,14 @@
             FilteredRead: FilteredRead,
             Read: Read,
             ReadSummary: ReadSummary,
+            ReadTemporaryDeleted: ReadTemporaryDeleted,
+
             Approve: Approve,
             ApproveSelected: ApproveSelected,
-            Delete: Delete
+            RestoreDeleted: RestoreDeleted,
+
+            Delete: Delete,
+            TemporaryDelete: TemporaryDelete
         }
 
         function FilteredRead(attendanceFilter) {
@@ -42,6 +47,14 @@
             });
         }
 
+        function ReadTemporaryDeleted() {
+            return $http({
+                method: 'POST',
+                url: '/Attendance/ReadTemporaryDeleted',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+        }
+
         function Approve(attendanceId) {
             return $http({
                 method: 'POST',
@@ -59,10 +72,26 @@
             });
         }
 
+        function RestoreDeleted(attendanceId) {
+            return $http({
+                method: 'POST',
+                url: '/Attendance/RestoreDeleted/' + attendanceId,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+        }
+
         function Delete(attendanceId) {
             return $http({
                 method: 'DELETE',
                 url: '/Attendance/Delete/' + attendanceId,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+        }
+
+        function TemporaryDelete(attendanceId) {
+            return $http({
+                method: 'DELETE',
+                url: '/Attendance/TemporaryDelete/' + attendanceId,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
         }

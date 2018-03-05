@@ -16,7 +16,13 @@ namespace AndersonWorkLogsWeb.Controllers
 
         #region Read
         [HttpPost]
-        public JsonResult Read(int id)
+        public JsonResult Read()
+        {
+            return Json(_iFWorkLog.Read());
+        }
+
+        [HttpPost]
+        public JsonResult ReadId(int id)
         {
             return Json(_iFWorkLog.Read(id));
         }

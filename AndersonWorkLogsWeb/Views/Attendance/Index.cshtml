@@ -106,23 +106,20 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="#" ng-click="model.Approve(attendance.AttendanceId)">Approve</a></li>
                                     <li><a href="#" ng-click="model.GoToUpdatePage(attendance.AttendanceId)">Edit</a></li>
-                                    <li><a href="#" ng-click="model.Delete(attendance.AttendanceId)">Delete</a></li>
+                                    <li><a href="#" ng-click="model.TempDelete(attendance.AttendanceId)">Delete</a></li>
                                 </ul>
                             </div>
                         </td>
                     </tr>
-
                     <tr class="collapse" id="{{$index}}">
                         <td colspan="11">
                             <h3 class="col-sm-offset-1 col-sm-7">Work Done</h3>
-                            <div @*ng-controller="WorkLogController as model" ng-init="model.Initialise(attendance.AttendanceId)"*@>
-                                <div class="form-group" ng-repeat="workLog in attendance.WorkLogs">
-                                    <div class="row">
-                                        <div class="col-sm-offset-1 col-sm-7">
-                                            <input class="form-control" ng-readonly="true" placeholder="WorkDone" ng-value="workLog.WorkDone">
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="col-sm-offset-1 col-sm-7">
+                                <ul ng-repeat="workLog in attendance.WorkLogs">
+                                    <li>
+                                        {{workLog.WorkDone}}
+                                    </li>
+                                </ul>
                             </div>
                         </td>
                     </tr>

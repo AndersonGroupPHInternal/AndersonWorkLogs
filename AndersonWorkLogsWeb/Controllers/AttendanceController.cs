@@ -1,9 +1,6 @@
 ﻿using AndersonWorkLogsFunction;
 using AndersonWorkLogsModel;
-using AndersonCRMFunction;
-using AndersonCRMModel;
 using System;
-using System.Collections.Generic;
 using System.Web.Mvc;
 
 namespace AndersonWorkLogsWeb.Controllers
@@ -12,12 +9,10 @@ namespace AndersonWorkLogsWeb.Controllers
     {
         private IFAttendance _iFAttendance;
         private IFWorkLog _iFWorkLog;
-        private IFEmployeeDepartment _iFEmployeeDepartment;
-        public AttendanceController(IFAttendance iFAttendance, IFWorkLog iFWorkLog, IFEmployeeDepartment iFEmployeeDepartment)
+        public AttendanceController(IFAttendance iFAttendance, IFWorkLog iFWorkLog)
         {
             _iFAttendance = iFAttendance;
             _iFWorkLog = iFWorkLog;
-            _iFEmployeeDepartment = iFEmployeeDepartment;
         }
 
         #region Create
@@ -47,7 +42,7 @@ namespace AndersonWorkLogsWeb.Controllers
         {
             return View();
         }
-        public ActionResult RecentlyDelete()
+        public ActionResult RecentlyDeleted()
         {
             return View();
         }
@@ -55,12 +50,7 @@ namespace AndersonWorkLogsWeb.Controllers
         [HttpPost]
         public JsonResult Read()
         {
-            List<Attendance> attendances = _iFAttendance.Read(UserId, EmployeeId);
-            foreach(Attendance attendance in attendances)
-            {
-                attendance.WorkLogs = _iFWorkLog.Read(attendance.AttendanceId);
-            }
-            return Json(attendances);
+            return Json(_iFAttendance.Read(UserId, EmployeeId));
         }
 
         [HttpPost]
@@ -68,13 +58,7 @@ namespace AndersonWorkLogsWeb.Controllers
         {
             try
             {
-                List<Attendance> attendances = _iFAttendance.Read(attendanceFilter);
-                foreach (Attendance attendance in attendances)
-                {
-                    attendance.WorkLogs = _iFWorkLog.Read(attendance.AttendanceId);
-                }
-                return Json(attendances);
-                //return Json(_iFAttendance.Read(attendanceFilter));
+                return Json(_iFAttendance.Read(attendanceFilter));
             }
             catch (Exception exception)
             {
@@ -86,6 +70,12 @@ namespace AndersonWorkLogsWeb.Controllers
         public JsonResult ReadSummary()
         {
             return Json(_iFAttendance.ReadSummary());
+        }
+
+        [HttpPost]
+        public JsonResult ReadTemporaryDeleted()
+        {
+            return Json(_iFAttendance.ReadTemporaryDeleted());
         }
         #endregion
 
@@ -131,6 +121,13 @@ namespace AndersonWorkLogsWeb.Controllers
                 _iFAttendance.MultipleApprove(UserId, attendanceFilter.AttendanceIds);
             return Json(true);
         }
+
+        [HttpPost]
+        public JsonResult RestoreDeleted(int id)
+        {
+            _iFAttendance.RestoreDeleted(id);
+            return Json(true);
+        }
         #endregion
 
         #region Delete
@@ -139,6 +136,13 @@ namespace AndersonWorkLogsWeb.Controllers
         {
             _iFWorkLog.Delete(id);
             _iFAttendance.Delete(id);
+            return Json(string.Empty);
+        }
+
+        [HttpDelete]
+        public JsonResult TemporaryDelete(int id)
+        {
+            _iFAttendance.TemporaryDelete(id);
             return Json(string.Empty);
         }
         #endregion

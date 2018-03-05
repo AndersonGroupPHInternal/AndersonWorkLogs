@@ -10,6 +10,7 @@ namespace AndersonWorkLogsFunction
         #endregion
 
         #region READ
+        List<WorkLog> Read();
         List<WorkLog> Read(int attendanceId);
         #endregion
 

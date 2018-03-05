@@ -13,7 +13,7 @@
         vm.AttendanceId;
 
         vm.WorkLog = {
-            WorkDone: '',
+            WorkDone: ''
         };
 
         vm.WorkLogs = [];
@@ -31,7 +31,7 @@
         }
 
         function Initialise(attendanceId) {
-            vm.AttendanceId = attendanceId
+            vm.AttendanceId = attendanceId;
             Read();
         }
 
@@ -40,7 +40,7 @@
         }
 
         function Read() {
-            WorkLogService.Read(vm.AttendanceId)
+            WorkLogService.ReadId(vm.AttendanceId)
                 .then(function (response) {
                     vm.WorkLogs = response.data;
                 })
@@ -52,7 +52,6 @@
                         hide: true,
                         addclass: "stack-bottomright"
                     });
-
                 });
         }
 

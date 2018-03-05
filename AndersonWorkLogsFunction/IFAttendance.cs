@@ -14,12 +14,15 @@ namespace AndersonWorkLogsFunction
         List<Attendance> Read(AttendanceFilter attendanceFilter);
         List<Attendance> Read(int userId, int employeeId);
         List<AttendanceSummary> ReadSummary();
+        List<Attendance> ReadTemporaryDeleted();
         #endregion
 
         #region UPDATE
-        Attendance Update(int updatedBy, Attendance attendance);
         void Approve(int approvedBy, int attendanceId);
         void MultipleApprove(int approvedBy, List<int> attendanceIds);
+        void RestoreDeleted(int attendanceId);
+        void TemporaryDelete(int attendanceId);
+        Attendance Update(int updatedBy, Attendance attendance);
         #endregion
 
         #region DELETE

@@ -1,0 +1,73 @@
+﻿@using AndersonWorkLogsModel;
+
+@{
+    ViewBag.Title = "RecentlyDeleted";
+}
+<div ng-controller="AttendanceController as model" ng-init="model.InitialiseRecentlyDeleted()">
+    <div class="row" style="display:flex">
+        <div class="col-sm-12" style="margin-top:auto">
+            <a ng-click="" class="btn btn-default">Restore</a>
+            <a ng-click="" class="btn btn-default">Delete</a>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-hover table-sm table-bordered ">
+                <thead>
+                    <tr class="thead-inverse">
+                        <th><input type="checkbox" ng-click="model.ToggleAll()" ng-model="model.isAllSelected" /></th>
+                        <th>ID #</th>
+                        <th>Username</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Total Hours</th>
+                        <th>Fullname</th>
+                        <th>Manager name</th>
+                        <th>Approved Date</th>
+                        <th>Approved</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody ng-repeat="attendance in model.Attendances track by $index">
+                    <tr class="clickableRow" data-toggle="collapse" data-target="#{{$index}}">
+                        <td><input type="checkbox" ng-model="attendance.Selected" ng-change="model.CheckboxToggled()" ng-click="$event.stopPropagation()" /></td>
+                        <td><span ng-bind="attendance.AttendanceId" /></td>
+                        <td><span ng-bind="attendance.User.Username" /></td>
+                        <td><span ng-bind="attendance.TimeIn" /></td>
+                        <td><span ng-bind="attendance.TimeOut" /></td>
+                        <td><span ng-bind="attendance.Hours" /></td>
+                        <td><span ng-bind="attendance.Employee.FullName" /></td>
+                        <td><span ng-bind="attendance.Manager.FullName" /></td>
+
+                        <td><span ng-bind="attendance.ApprovedDate" /></td>
+                        <td><span ng-bind="attendance.Approved" /></td>
+                        <td ng-click="$event.originalEvent.dropdown = true">
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" ng-click="model.Restore(attendance.AttendanceId)">Restore</a></li>
+                                    <li><a href="#" ng-click="model.Delete(attendance.AttendanceId)">Delete</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="collapse" id="{{$index}}">
+                        <td colspan="11">
+                            <h3 class="col-sm-offset-1 col-sm-7">Work Done</h3>
+                            <div class="col-sm-offset-1 col-sm-7">
+                                <ul ng-repeat="workLog in attendance.WorkLogs">
+                                    <li>
+                                        {{workLog.WorkDone}}
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

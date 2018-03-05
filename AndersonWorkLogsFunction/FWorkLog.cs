@@ -36,6 +36,12 @@ namespace AndersonWorkLogsFunction
         #endregion
 
         #region READ
+        public List<WorkLog> Read()
+        {
+            List<EWorkLog> eWorkLogs = _iDWorkLog.List<EWorkLog>(a => true);
+            return WorkLogs(eWorkLogs);
+        }
+
         public List<WorkLog> Read(int attendanceId)
         {
             List<EWorkLog> eWorkLogs = _iDWorkLog.List<EWorkLog>(a => a.AttendanceId == attendanceId);

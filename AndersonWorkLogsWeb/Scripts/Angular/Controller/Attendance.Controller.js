@@ -5,9 +5,9 @@
         .module('App')
         .controller('AttendanceController', AttendanceController);
 
-    AttendanceController.$inject = ['$filter', '$window', 'AttendanceService', 'DepartmentService', 'EmployeeService', 'EmployeeDepartmentService', 'UserService'];
+    AttendanceController.$inject = ['$filter', '$window', 'AttendanceService', 'DepartmentService', 'EmployeeService', 'EmployeeDepartmentService', 'UserService', 'WorkLogService'];
 
-    function AttendanceController($filter, $window, AttendanceService, DepartmentService, EmployeeService, EmployeeDepartmentService, UserService) {
+    function AttendanceController($filter, $window, AttendanceService, DepartmentService, EmployeeService, EmployeeDepartmentService, UserService, WorkLogService) {
         var vm = this;
 
         vm.AttendanceFilter = {};
@@ -17,17 +17,22 @@
         vm.Employees = [];
         vm.EmployeeDepartments = [];
         vm.Users = [];
+        vm.WorkLogs = [];
         
         vm.Initialise = Initialise;
         vm.InitialiseSummary = InitialiseSummary;
+        vm.InitialiseRecentlyDeleted = InitialiseRecentlyDeleted;
         vm.FilterList = FilterList;
         vm.Approve = Approve;
         vm.ApproveSelected = ApproveSelected;
-        vm.CheckboxToggled = CheckboxToggled;
         vm.ConfirmApproval = ConfirmApproval;
         vm.GoToUpdatePage = GoToUpdatePage;
-        vm.ToggleAll = ToggleAll;
+        vm.Restore = RestoreDeleted;
         vm.Delete = Delete;
+        vm.TempDelete = TempDelete;
+
+        vm.CheckboxToggled = CheckboxToggled;
+        vm.ToggleAll = ToggleAll;
 
         function Initialise() {
             Read();
@@ -38,12 +43,16 @@
             ReadSummary();
         }
 
+        function InitialiseRecentlyDeleted() {
+            ReadTemporaryDeleted();
+        }
+
         //### READ ###
 
         function FilterList() {
             var attendanceFilter = angular.copy(vm.AttendanceFilter)
 
-            if (attendanceFilter.TimeInFrom != undefined && attendanceFilter.TimeInTo != undefined) {
+            if (attendanceFilter.TimeInFrom !== undefined && attendanceFilter.TimeInTo !== undefined) {
                 attendanceFilter.TimeInFrom = moment(attendanceFilter.TimeInFrom).format('YYYY-MM-DD');
                 attendanceFilter.TimeInTo = moment(attendanceFilter.TimeInTo).add(1, 'days').format('YYYY-MM-DD');
             }
@@ -85,6 +94,7 @@
                 .then(function (response) {
                     vm.Attendances = response.data;
                     ReadUsers();
+                    ReadWorkLogs();
                 })
                 .catch(function (data, status) {
                     new PNotify({
@@ -157,7 +167,7 @@
             angular.forEach(vm.Attendances, function (attendance) {
                 attendance.Employee = $filter('filter')(vm.Employees, { EmployeeId: attendance.User.EmployeeId })[0];
                 attendance.Employee.FullName = attendance.Employee.LastName + ", " + attendance.Employee.FirstName + " " + attendance.Employee.MiddleName;
-                attendance.Manager = $filter('filter')(vm.Employees, { EmployeeId: attendance.ManagerEmployeeId })[0];
+                attendance.Manager = $filter('filter')(vm.Employees, { EmployeeId: attendance.Employee.ManagerEmployeeId })[0];
                 if (attendance.Manager !== undefined)
                     attendance.Manager.FullName = attendance.Manager.LastName + ", " + attendance.Manager.FirstName + " " + attendance.Manager.MiddleName;
             });
@@ -186,7 +196,7 @@
                 attendance.User = $filter('filter')(vm.Users, { UserId: attendance.CreatedBy })[0];
             });
         }
-        
+
         function ReadSummary() {
             AttendanceService.ReadSummary()
                 .then(function (response) {
@@ -202,6 +212,47 @@
                         addclass: "stack-bottomright"
                     });
                 });
+        }
+
+        function ReadTemporaryDeleted() {
+            AttendanceService.ReadTemporaryDeleted()
+                .then(function (response) {
+                    vm.Attendances = response.data;
+                    ReadUsers();
+                    ReadWorkLogs();
+                })
+                .catch(function (data, status) {
+                    new PNotify({
+                        title: status,
+                        text: data,
+                        type: 'error',
+                        hide: true,
+                        addclass: "stack-bottomright"
+                    });
+                });
+        }
+
+        function ReadWorkLogs() {
+            WorkLogService.Read()
+                .then(function (response) {
+                    vm.WorkLogs = response.data;
+                    UpdateWorkLogs();
+                })
+                .catch(function (data, status) {
+                    new PNotify({
+                        title: status,
+                        text: data,
+                        type: 'error',
+                        hide: true,
+                        addclass: "stack-bottomright"
+                    });
+                });
+        }
+
+        function UpdateWorkLogs() {
+            angular.forEach(vm.Attendances, function (attendance) {
+                attendance.WorkLogs = $filter('filter')(vm.WorkLogs, { AttendanceId: attendance.AttendanceId });
+            });
         }
 
         //### UPDATE ###
@@ -238,16 +289,11 @@
                 });
         }
 
-        function CheckboxToggled() {
-            vm.isAllSelected = vm.Attendances.every(function (attendance) {
-                return attendance.Selected;
-            });
-        }
-
         function ConfirmApproval() {
+            console.log(vm.Attendances);
             var selectedAttendance = $filter('filter')(vm.Attendances, { Selected: true });
 
-            if (selectedAttendance.length != 0) {
+            if (selectedAttendance.length !== 0) {
                 if (confirm("Approve " + selectedAttendance.length + " attendance?")) {
                     ApproveSelected();
                     alert("Successfully Approved!");
@@ -258,21 +304,46 @@
             }
         }
 
-        function ToggleAll() {
-            var toggleStatus = vm.isAllSelected;
-            angular.forEach(vm.Attendances, function (attendance) {
-                attendance.Selected = !toggleStatus;
-            });
-        }
-
         function GoToUpdatePage(attendanceId) {
             $window.location.href = '../Attendance/Update/' + attendanceId;
+        }
+
+        function RestoreDeleted(attendanceId) {
+            AttendanceService.RestoreDeleted(attendanceId)
+                .then(function (response) {
+                    ReadTemporaryDeleted();
+                })
+                .catch(function (data, status) {
+                    new PNotify({
+                        title: status,
+                        text: data,
+                        type: 'error',
+                        hide: true,
+                        addclass: "stack-bottomright"
+                    });
+                });
         }
 
         //### DELETE ###
 
         function Delete(attendanceId) {
             AttendanceService.Delete(attendanceId)
+                .then(function (response) {
+                    ReadTemporaryDeleted();
+                })
+                .catch(function (data, status) {
+                    new PNotify({
+                        title: status,
+                        text: data,
+                        type: 'error',
+                        hide: true,
+                        addclass: "stack-bottomright"
+                    });
+                });
+        }
+
+        function TempDelete(attendanceId) {
+            AttendanceService.TemporaryDelete(attendanceId)
                 .then(function (response) {
                     Read();
                 })
@@ -285,6 +356,21 @@
                         addclass: "stack-bottomright"
                     });
                 });
+        }
+
+        //### OTHER ###
+
+        function CheckboxToggled() {
+            vm.isAllSelected = vm.Attendances.every(function (attendance) {
+                return attendance.Selected;
+            });
+        }
+
+        function ToggleAll() {
+            var toggleStatus = vm.isAllSelected;
+            angular.forEach(vm.Attendances, function (attendance) {
+                attendance.Selected = !toggleStatus;
+            });
         }
     }
 })();

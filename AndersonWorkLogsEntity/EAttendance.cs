@@ -9,6 +9,8 @@ namespace AndersonWorkLogsEntity
     [Table("Attendance")]
     public class EAttendance : EBase
     {
+        public Boolean IsTemporaryDeleted { get; set; }
+
         public DateTime TimeIn { get; set; }
         public DateTime TimeOut { get; set; }
         public DateTime? ApprovedDate { get; set; }
