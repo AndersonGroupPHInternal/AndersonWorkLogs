@@ -9,13 +9,22 @@
 
     function WorkLogService($http) {
         return {
-            Read: Read
-        }
+            Read: Read,
+            ReadId: ReadId
+        };
 
-        function Read(attendanceId) {
+        function Read() {
             return $http({
                 method: 'POST',
-                url: '/WorkLog/Read/' + attendanceId,
+                url: '/WorkLog/Read',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+        }
+
+        function ReadId(attendanceId) {
+            return $http({
+                method: 'POST',
+                url: '/WorkLog/ReadId/' + attendanceId,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
         }

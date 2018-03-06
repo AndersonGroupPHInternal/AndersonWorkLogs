@@ -953,7 +953,7 @@
     <Content Include="Views\Attendance\Index.cshtml" />
     <Content Include="Views\Home\Summary.cshtml" />
     <Content Include="Views\Attendance\Update.cshtml" />
-    <Content Include="Views\Attendance\RecentlyDelete.cshtml" />
+    <Content Include="Views\Attendance\RecentlyDeleted.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
       <SubType>Designer</SubType>

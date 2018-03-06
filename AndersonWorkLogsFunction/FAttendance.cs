@@ -53,29 +53,23 @@ namespace AndersonWorkLogsFunction
                 || (!attendanceFilter.TimeInFrom.HasValue || !attendanceFilter.TimeInTo.HasValue))
                 && (!attendanceFilter.EmployeeIds.Any() || attendanceFilter.EmployeeIds.Contains(a.EmployeeId))
                 && (!attendanceFilter.EmployeeIdsOfSelectedDepartments.Any() || attendanceFilter.EmployeeIdsOfSelectedDepartments.Contains(a.EmployeeId))
-                && (!attendanceFilter.ManagerEmployeeIds.Any() || attendanceFilter.ManagerEmployeeIds.Contains(a.ManagerEmployeeId));
-
-            //(a.TimeIn >= attendanceFilter.TimeInFrom) && (a.TimeOut <= attendanceFilter.TimeInTo) ||
-
-            //Expression<Func<EAttendance, bool>> predicate =
-            //    a => (attendanceFilter.TimeInFrom.HasValue || a.TimeIn >= attendanceFilter.TimeInFrom)
-            //    && (attendanceFilter.TimeInTo.HasValue || a.TimeOut >= attendanceFilter.TimeInTo)
-            //    && (attendanceFilter.ManagerEmployeeIds.Any() || attendanceFilter.ManagerEmployeeIds.Contains(a.ManagerEmployeeId));
-            //looks like we need to add EmployeeId
+                && (!attendanceFilter.ManagerEmployeeIds.Any() || attendanceFilter.ManagerEmployeeIds.Contains(a.ManagerEmployeeId))
+                && !a.IsTemporaryDeleted;
+            
             List <EAttendance> eAttendances = _iDAttendance.List(predicate);
             return Attendances(eAttendances);
         }
 
         public List<Attendance> Read(int userId, int employeeId)
         {
-            List<EAttendance> eAttendances = _iDAttendance.List<EAttendance>(a => a.CreatedBy == userId || a.ManagerEmployeeId == employeeId);
+            List<EAttendance> eAttendances = _iDAttendance.List<EAttendance>(a => (a.CreatedBy == userId || a.ManagerEmployeeId == employeeId) && !a.IsTemporaryDeleted);
 
             return Attendances(eAttendances);
         }
 
         public List<AttendanceSummary> ReadSummary()
         {
-            List<EAttendance> eAttendances = _iDAttendance.List<EAttendance>(a => true);
+            List<EAttendance> eAttendances = _iDAttendance.List<EAttendance>(a => !a.IsTemporaryDeleted);
             List<AttendanceSummary> attendanceSummaries = new List<AttendanceSummary>();
             attendanceSummaries = eAttendances.GroupBy(d => d.CreatedBy)
                 .Select(
@@ -88,19 +82,16 @@ namespace AndersonWorkLogsFunction
 
             return attendanceSummaries;
         }
+
+        public List<Attendance> ReadTemporaryDeleted()
+        {
+            List<EAttendance> eAttendances = _iDAttendance.List<EAttendance>(a => a.IsTemporaryDeleted);
+
+            return Attendances(eAttendances);
+        }
         #endregion
 
         #region UPDATE
-        public Attendance Update(int updatedBy, Attendance attendance)
-        {
-            EAttendance eAttendance = EAttendance(attendance);
-            eAttendance.UpdatedDate = DateTime.Now;
-            eAttendance.UpdatedBy = updatedBy;
-            eAttendance = _iDAttendance.Update(eAttendance);
-
-            return (Attendance(eAttendance));
-        }
-
         public void Approve(int approvedBy, int attendanceId)
         {
             EAttendance eAttendance = _iDAttendance.Read<EAttendance>(a => a.AttendanceId == attendanceId);
@@ -124,6 +115,30 @@ namespace AndersonWorkLogsFunction
                 eAttendance.ApprovedBy = approvedBy;
                 _iDAttendance.Update(eAttendance);
             }
+        }
+
+        public void RestoreDeleted(int attendanceId)
+        {
+            EAttendance eAttendance = _iDAttendance.Read<EAttendance>(a => a.AttendanceId == attendanceId);
+            eAttendance.IsTemporaryDeleted = false;
+            _iDAttendance.Update(eAttendance);
+        }
+
+        public void TemporaryDelete(int attendanceId)
+        {
+            EAttendance eAttendance = _iDAttendance.Read<EAttendance>(a => a.AttendanceId == attendanceId);
+            eAttendance.IsTemporaryDeleted = true;
+            _iDAttendance.Update(eAttendance);
+        }
+
+        public Attendance Update(int updatedBy, Attendance attendance)
+        {
+            EAttendance eAttendance = EAttendance(attendance);
+            eAttendance.UpdatedDate = DateTime.Now;
+            eAttendance.UpdatedBy = updatedBy;
+            eAttendance = _iDAttendance.Update(eAttendance);
+
+            return (Attendance(eAttendance));
         }
         #endregion
 
